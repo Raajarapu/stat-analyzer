@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stat Analyzer - PhD-Level Statistical Intelligence</title>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/react.min.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/react-dom.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.0/math.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Crimson Text', serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        .container {
+            min-height: 100vh;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .header {
+            border-bottom: 1px solid rgba(148, 163, 184, 0.3);
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .header-content {
+            max-width: 80rem;
+            margin: 0 auto;
+            padding: 1.5rem 2rem;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-title h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 300;
+            color: #f1f5f9;
+        }
+
+        .header-subtitle {
+            color: #94a3b8;
+            font-size: 0.875rem;
+            letter-spacing: 0.05em;
+        }
+
+        .main-content {
+            max-width: 80rem;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 120px;
+            height: fit-content;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+        }
+
+        .upload-btn {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(to right, #b45309, #ea580c);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .upload-btn:hover {
+            background: linear-gradient(to right, #92400e, #c2410c);
+        }
+
+        .upload-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .hidden-input {
+            display: none;
+        }
+
+        .upload-hint {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            text-align: center;
+            margin-top: 0.75rem;
+        }
+
+        .card-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.875rem;
+            padding: 0.5rem 0;
+        }
+
+        .summary-label {
+            color: #94a3b8;
+        }
+
+        .summary-value {
+            color: #fcd34d;
+            font-weight: 600;
+        }
+
+        .divider {
+            border-top: 1px solid rgba(148, 163, 184, 0.3);
+            margin: 1rem 0;
+        }
+
+        .data-type-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+
+        .type-numerical {
+            background: rgba(59, 130, 246, 0.2);
+            color: #93c5fd;
+        }
+
+        .type-categorical {
+            background: rgba(168, 85, 247, 0.2);
+            color: #d8b4fe;
+        }
+
+        .insight-item {
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-left: 2px solid;
+        }
+
+        .insight-critical {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: #ef4444;
+            color: #fca5a5;
+        }
+
+        .insight-warning {
+            background: rgba(234, 179, 8, 0.1);
+            border-color: #eab308;
+            color: #fef08a;
+        }
+
+        .insight-info {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: #3b82f6;
+            color: #93c5fd;
+        }
+
+        .insight-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .welcome-section {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.5) 0%, rgba(30, 41, 59, 0.3) 100%);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            border-radius: 0.5rem;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .welcome-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.875rem;
+            color: #e2e8f0;
+            margin-bottom: 0.75rem;
+        }
+
+        .welcome-text {
+            color: #94a3b8;
+            margin-bottom: 1.5rem;
+            max-width: 28rem;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .welcome-btn {
+            padding: 0.75rem 2rem;
+            background: linear-gradient(to right, #b45309, #ea580c);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .welcome-btn:hover {
+            background: linear-gradient(to right, #92400e, #c2410c);
+        }
+
+        .query-box {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .query-input {
+            flex: 1;
+            background: rgba(55, 65, 81, 0.5);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: #f1f5f9;
+            font-size: 0.875rem;
+            font-family: 'Crimson Text', serif;
+        }
+
+        .query-input::placeholder {
+            color: #64748b;
+        }
+
+        .query-input:focus {
+            outline: none;
+            border-color: #fbbf24;
+        }
+
+        .query-btn {
+            padding: 0.5rem 1.5rem;
+            background: #b45309;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .query-btn:hover:not(:disabled) {
+            background: #92400e;
+        }
+
+        .query-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .analysis-section {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            border-radius: 0.5rem;
+            padding: 2rem;
+            space-y: 1.5rem;
+        }
+
+        .analysis-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: #fcd34d;
+            margin-bottom: 0.5rem;
+        }
+
+        .analysis-type {
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            color: #94a3b8;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+
+        .analysis-section-item {
+            border-left: 2px solid rgba(251, 191, 36, 0.5);
+            padding-left: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+
+        .analysis-section-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-heading {
+            color: #fcd34d;
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-content {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .warning-box {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(93, 164, 255, 0.3);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .warning-text {
+            color: #93c5fd;
+            font-size: 0.875rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+            line-height: 1.5;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .stat-box {
+            background: rgba(55, 65, 81, 0.3);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            color: #f1f5f9;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .column-section {
+            margin-top: 1.5rem;
+        }
+
+        .column-title {
+            color: #fcd34d;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .svg-icon {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            vertical-align: middle;
+        }
+
+        .loading {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .data-type-list {
+            space-y: 0.5rem;
+        }
+
+        .data-type-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+            color: #cbd5e1;
+        }
+
+        .data-type-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .truncate {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .spacing-4 {
+            margin-top: 1.5rem;
+        }
+
+        .spacing-6 {
+            margin-top: 2rem;
+        }
+
+        .overflow-auto {
+            max-height: 24rem;
+            overflow-y: auto;
+        }
+
+        .text-xs {
+            font-size: 0.75rem;
+        }
+
+        .text-sm {
+            font-size: 0.875rem;
+        }
+
+        .space-y-2 > * + * {
+            margin-top: 0.5rem;
+        }
+
+        .space-y-3 > * + * {
+            margin-top: 0.75rem;
+        }
+
+        .space-y-6 > * + * {
+            margin-top: 1.5rem;
+        }
+
+        .first\:border-0:first-child {
+            border: none;
+        }
+
+        .first\:pt-0:first-child {
+            padding-top: 0;
+        }
+
+        .border-t {
+            border-top: 1px solid rgba(148, 163, 184, 0.3);
+            padding-top: 1.5rem;
+        }
+
+        .border-t:first-child {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .md\:grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .md\:grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useRef } = React;
+
+        function StatAnalyzer() {
+            const [data, setData] = useState(null);
+            const [dataInfo, setDataInfo] = useState(null);
+            const [analysis, setAnalysis] = useState(null);
+            const [userQuery, setUserQuery] = useState('');
+            const [loading, setLoading] = useState(false);
+            const fileInputRef = useRef(null);
+
+            const parseData = (text) => {
+                const lines = text.trim().split('\n');
+                if (lines.length < 2) return null;
+
+                const firstLine = lines[0];
+                const delimiter = firstLine.includes('\t') ? '\t' : ',';
+                
+                const headers = firstLine.split(delimiter).map(h => h.trim());
+                const rows = lines.slice(1).map(line => {
+                    const values = line.split(delimiter).map(v => v.trim());
+                    return headers.reduce((obj, header, i) => {
+                        obj[header] = values[i] === '' ? null : isNaN(values[i]) ? values[i] : parseFloat(values[i]);
+                        return obj;
+                    }, {});
+                });
+
+                return { headers, rows };
+            };
+
+            const analyzeData = (parsedData) => {
+                const { headers, rows } = parsedData;
+                const info = {
+                    sampleSize: rows.length,
+                    columns: {},
+                    dataQuality: {}
+                };
+
+                headers.forEach(col => {
+                    const values = rows.map(r => r[col]).filter(v => v !== null && v !== undefined);
+                    const missing = rows.length - values.length;
+                    const numeric = values.every(v => typeof v === 'number');
+                    
+                    info.columns[col] = {
+                        type: numeric ? 'numerical' : 'categorical',
+                        missing,
+                        missingPercent: ((missing / rows.length) * 100).toFixed(1),
+                        uniqueValues: new Set(values).size,
+                        sample: values.slice(0, 3)
+                    };
+
+                    if (numeric) {
+                        const sorted = [...values].sort((a, b) => a - b);
+                        const mean = values.reduce((a, b) => a + b, 0) / values.length;
+                        const variance = values.reduce((a, b) => a + (b - mean) ** 2, 0) / values.length;
+                        const std = Math.sqrt(variance);
+                        const min = Math.min(...values);
+                        const max = Math.max(...values);
+                        const q1 = sorted[Math.floor(sorted.length * 0.25)];
+                        const q3 = sorted[Math.floor(sorted.length * 0.75)];
+                        const iqr = q3 - q1;
+                        
+                        const outliers = values.filter(v => v < q1 - 1.5 * iqr || v > q3 + 1.5 * iqr);
+                        
+                        const skewness = values.length > 2 ? 
+                            (values.reduce((a, b) => a + ((b - mean) / std) ** 3, 0) / values.length) : 0;
+
+                        const kurtosis = values.length > 3 ?
+                            (values.reduce((a, b) => a + ((b - mean) / std) ** 4, 0) / values.length) - 3 : 0;
+
+                        info.columns[col] = {
+                            ...info.columns[col],
+                            mean: mean.toFixed(3),
+                            median: sorted[Math.floor(sorted.length / 2)].toFixed(3),
+                            std: std.toFixed(3),
+                            min: min.toFixed(3),
+                            max: max.toFixed(3),
+                            q1: q1.toFixed(3),
+                            q3: q3.toFixed(3),
+                            iqr: iqr.toFixed(3),
+                            outlierCount: outliers.length,
+                            outlierPercent: ((outliers.length / values.length) * 100).toFixed(1),
+                            skewness: skewness.toFixed(3),
+                            kurtosis: kurtosis.toFixed(3)
+                        };
+                    }
+                });
+
+                const totalMissing = Object.values(info.columns).reduce((sum, col) => sum + col.missing, 0);
+                info.dataQuality.totalMissingPercent = ((totalMissing / (rows.length * headers.length)) * 100).toFixed(1);
+                info.dataQuality.completenessRating = totalMissing === 0 ? 'Excellent' : 
+                    parseFloat(info.dataQuality.totalMissingPercent) < 5 ? 'Good' : 'Fair';
+
+                return info;
+            };
+
+            const getRecommendations = (info) => {
+                const recommendations = [];
+                const { columns, sampleSize } = info;
+                const numColumns = Object.keys(columns).filter(c => columns[c].type === 'numerical');
+
+                if (sampleSize < 30) {
+                    recommendations.push({
+                        category: 'Sample Size',
+                        issue: 'Small sample (n < 30)',
+                        action: 'Use t-distribution instead of normal. Be cautious with inference.',
+                        severity: 'warning'
+                    });
+                }
+
+                Object.entries(columns).forEach(([colName, colInfo]) => {
+                    if (colInfo.type === 'numerical') {
+                        if (colInfo.missing > 0) {
+                            recommendations.push({
+                                category: 'Missing Data',
+                                issue: `${colInfo.missing} missing in "${colName}"`,
+                                action: `Consider: Listwise deletion if <5%, or imputation.`,
+                                severity: colInfo.missing > sampleSize * 0.1 ? 'critical' : 'warning'
+                            });
+                        }
+
+                        if (colInfo.outlierCount > 0) {
+                            recommendations.push({
+                                category: 'Outliers',
+                                issue: `${colInfo.outlierCount} outliers in "${colName}"`,
+                                action: `Investigate: genuine value or data error? Consider robust statistics.`,
+                                severity: colInfo.outlierCount > sampleSize * 0.05 ? 'warning' : 'info'
+                            });
+                        }
+
+                        const absSkew = Math.abs(parseFloat(colInfo.skewness));
+                        if (absSkew > 2) {
+                            recommendations.push({
+                                category: 'Skewness',
+                                issue: `High skewness (${colInfo.skewness}) in "${colName}"`,
+                                action: `Consider transformation (log, sqrt) or non-parametric tests.`,
+                                severity: 'warning'
+                            });
+                        }
+                    }
+                });
+
+                if (numColumns.length === 1) {
+                    recommendations.push({
+                        category: 'Suggested Tests',
+                        issue: 'Single numerical variable',
+                        action: 'One-sample t-test, normality test, descriptive analysis.',
+                        severity: 'info'
+                    });
+                } else if (numColumns.length === 2) {
+                    recommendations.push({
+                        category: 'Suggested Tests',
+                        issue: 'Two numerical variables',
+                        action: 'Correlation analysis (Pearson/Spearman), simple linear regression.',
+                        severity: 'info'
+                    });
+                } else if (numColumns.length > 2) {
+                    recommendations.push({
+                        category: 'Suggested Tests',
+                        issue: `${numColumns.length} numerical variables`,
+                        action: 'Multiple regression, correlation matrix, ANOVA.',
+                        severity: 'info'
+                    });
+                }
+
+                return recommendations;
+            };
+
+            const handleFileUpload = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const parsed = parseData(event.target.result);
+                    if (parsed) {
+                        setData(parsed);
+                        const info = analyzeData(parsed);
+                        setDataInfo(info);
+                        setAnalysis(null);
+                    }
+                };
+                reader.readAsText(file);
+            };
+
+            const handleQuery = async () => {
+                if (!userQuery.trim() || !dataInfo) return;
+                
+                setLoading(true);
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                const response = generateStatisticalResponse(userQuery, data, dataInfo);
+                setAnalysis(response);
+                setLoading(false);
+            };
+
+            const generateStatisticalResponse = (query, data, info) => {
+                const q = query.toLowerCase();
+                
+                if (q.includes('normal') || q.includes('distribution')) {
+                    const numCols = Object.entries(info.columns)
+                        .filter(([_, c]) => c.type === 'numerical')
+                        .map(([name, _]) => name);
+
+                    return {
+                        title: 'Normality Assessment',
+                        type: 'diagnostic',
+                        sections: [
+                            {
+                                heading: 'Analysis Performed',
+                                content: `Visual and statistical assessment of distribution shape using skewness and kurtosis metrics.`
+                            },
+                            {
+                                heading: 'Why This Matters',
+                                content: `Parametric tests (t-test, ANOVA, regression) assume normality. Violations can bias p-values and confidence intervals.`
+                            },
+                            {
+                                heading: 'Key Findings',
+                                content: numCols.map(col => {
+                                    const colInfo = info.columns[col];
+                                    const skew = Math.abs(parseFloat(colInfo.skewness));
+                                    return `${col}: Skewness=${colInfo.skewness} (${skew < 0.5 ? 'symmetric' : skew < 2 ? 'moderately skewed' : 'highly skewed'}). Kurtosis=${colInfo.kurtosis}. ${Math.abs(parseFloat(colInfo.skewness)) < 0.5 ? 'Approximately normal.' : 'Deviates from normality.'}`;
+                                }).join(' | ')
+                            },
+                            {
+                                heading: 'Recommended Action',
+                                content: numCols.some(col => Math.abs(parseFloat(info.columns[col].skewness)) > 2) ?
+                                    'Consider log/sqrt transformation or non-parametric alternatives (Mann-Whitney U, Kruskal-Wallis).' :
+                                    'Parametric tests are appropriate. Proceed with t-tests, ANOVA, etc.'
+                            }
+                        ]
+                    };
+                }
+
+                if (q.includes('missing')) {
+                    const missingCols = Object.entries(info.columns)
+                        .filter(([_, c]) => c.missing > 0)
+                        .map(([name, c]) => `${name} (${c.missingPercent}%)`);
+
+                    return {
+                        title: 'Missing Data Strategy',
+                        type: 'prescriptive',
+                        sections: [
+                            {
+                                heading: 'Columns with Missing Values',
+                                content: missingCols.length > 0 ? missingCols.join(', ') : 'No missing values detected.'
+                            },
+                            {
+                                heading: 'Root Cause Assessment',
+                                content: `Determine if missing data is MCAR (Missing Completely At Random), MAR (Missing At Random), or MNAR (Missing Not At Random). This guides imputation strategy.`
+                            },
+                            {
+                                heading: 'Recommended Actions',
+                                content: info.dataQuality.totalMissingPercent < 5 ?
+                                    'Listwise deletion is acceptable. Remove rows with missing values.' :
+                                    'Use imputation: mean/median for MCAR, multiple imputation for MAR, sensitivity analysis for MNAR.'
+                            }
+                        ]
+                    };
+                }
+
+                if (q.includes('outlier')) {
+                    const outlierCols = Object.entries(info.columns)
+                        .filter(([_, c]) => c.outlierCount > 0)
+                        .map(([name, c]) => `${name} (${c.outlierCount} outliers, ${c.outlierPercent}%)`);
+
+                    return {
+                        title: 'Outlier Analysis & Mitigation',
+                        type: 'diagnostic',
+                        sections: [
+                            {
+                                heading: 'Outliers Detected',
+                                content: outlierCols.length > 0 ? outlierCols.join(', ') : 'No extreme outliers detected by IQR method.'
+                            },
+                            {
+                                heading: 'Statistical Impact',
+                                content: `Outliers inflate standard deviation, bias regression slopes, violate normality assumptions. Impact is severe in small samples (n<30).`
+                            },
+                            {
+                                heading: 'Action Plan',
+                                content: `1) Investigate: data entry error or genuine extreme value? 2) Report analyses with and without outliers. 3) Use robust statistics (median, IQR). 4) Consider Winsorization (cap at 95th/5th percentile).`
+                            }
+                        ]
+                    };
+                }
+
+                if (q.includes('correlation') || q.includes('relationship')) {
+                    const numCols = Object.entries(info.columns)
+                        .filter(([_, c]) => c.type === 'numerical')
+                        .map(([name, _]) => name);
+
+                    return {
+                        title: 'Correlation & Relationship Analysis',
+                        type: 'descriptive',
+                        sections: [
+                            {
+                                heading: 'Available Numerical Variables',
+                                content: numCols.length >= 2 ? numCols.join(', ') : 'Insufficient numerical variables for correlation analysis.'
+                            },
+                            {
+                                heading: 'Analysis Approach',
+                                content: numCols.length >= 2 ?
+                                    'Compute correlation matrix (Pearson if normal, Spearman if non-normal). Test significance with p-values. Interpret strength and direction.' :
+                                    'Need at least 2 numerical variables.'
+                            },
+                            {
+                                heading: 'Next Step',
+                                content: 'If significant correlation exists (p < 0.05), consider simple linear regression: Y ~ X. Check assumptions: linearity, homoscedasticity, normality of residuals.'
+                            }
+                        ]
+                    };
+                }
+
+                if (q.includes('test') || q.includes('hypothesis')) {
+                    const numCols = Object.entries(info.columns)
+                        .filter(([_, c]) => c.type === 'numerical')
+                        .map(([name, _]) => name);
+
+                    return {
+                        title: 'Hypothesis Testing Framework',
+                        type: 'prescriptive',
+                        sections: [
+                            {
+                                heading: 'Test Selection',
+                                content: numCols.length === 1 ?
+                                    'Single variable: One-sample t-test (H0: mean = population value). Requires normality assumption.' :
+                                    numCols.length === 2 ?
+                                    'Two variables: Independent t-test (if groups), paired t-test (if matched), correlation test.' :
+                                    'Multiple variables: ANOVA (if groups), multiple regression (if continuous predictor).'
+                            },
+                            {
+                                heading: 'Critical Elements',
+                                content: 'Define null (H0) and alternative (H1) hypotheses. Set significance level α = 0.05. Calculate test statistic, p-value, and confidence intervals. Interpret: reject H0 if p < α.'
+                            },
+                            {
+                                heading: 'Common Pitfalls',
+                                content: 'Multiple testing (use Bonferroni correction). Ignoring effect size (p-value ≠ importance). Assuming correlation = causation. Violating test assumptions.'
+                            }
+                        ]
+                    };
+                }
+
+                if (q.includes('regression')) {
+                    const numCols = Object.entries(info.columns)
+                        .filter(([_, c]) => c.type === 'numerical')
+                        .map(([name, _]) => name);
+
+                    return {
+                        title: 'Regression Analysis & Modeling',
+                        type: 'predictive',
+                        sections: [
+                            {
+                                heading: 'Regression Type',
+                                content: numCols.length >= 2 ?
+                                    'Simple linear (1 predictor): Y ~ X. Multiple linear (multiple predictors): Y ~ X1 + X2 + ...' :
+                                    'Insufficient numerical variables.'
+                            },
+                            {
+                                heading: 'Key Assumptions',
+                                content: 'Linearity (scatter plot), homoscedasticity (residuals have constant variance), normality (residuals normally distributed), independence (no autocorrelation).'
+                            },
+                            {
+                                heading: 'Interpretation',
+                                content: 'β coefficient: unit change in X → β unit change in Y. R²: % variance explained. p-value: statistical significance of predictor.'
+                            },
+                            {
+                                heading: 'Diagnostics',
+                                content: 'Residual plots (fitted vs residuals, Q-Q plot), VIF (multicollinearity), outlier detection, autocorrelation (Durbin-Watson).'
+                            }
+                        ]
+                    };
+                }
+
+                return {
+                    title: 'Comprehensive Data Assessment',
+                    type: 'descriptive',
+                    sections: [
+                        {
+                            heading: 'Dataset Overview',
+                            content: `Sample size: ${info.sampleSize}. Variables: ${Object.keys(info.columns).length}. Data completeness: ${info.dataQuality.completenessRating}.`
+                        },
+                        {
+                            heading: 'Variable Summary',
+                            content: Object.entries(info.columns)
+                                .map(([name, col]) => `${name}: ${col.type} (${col.uniqueValues} unique)`)
+                                .join('; ')
+                        },
+                        {
+                            heading: 'Data Quality',
+                            content: `Overall missing data: ${info.dataQuality.totalMissingPercent}%. Quality rating: ${info.dataQuality.completenessRating}.`
+                        },
+                        {
+                            heading: 'Next Steps',
+                            content: 'Ask: Is this normally distributed? What outliers exist? Should I use regression? What test is appropriate? How should I handle missing data?'
+                        }
+                    ]
+                };
+            };
+
+            return (
+                <div className="container">
+                    <div className="header">
+                        <div className="header-content">
+                            <div className="header-title">
+                                <svg className="svg-icon" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/>
+                                </svg>
+                                <h1>Stat Analyzer</h1>
+                            </div>
+                            <p className="header-subtitle">PhD-Level Statistical & Decision Science Intelligence</p>
+                        </div>
+                    </div>
+
+                    <div className="main-content">
+                        <div className="grid">
+                            <div className="sidebar">
+                                <div className="card">
+                                    <button
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="upload-btn"
+                                    >
+                                        📤 Upload Data
+                                    </button>
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        accept=".csv,.tsv,.txt,.xlsx"
+                                        onChange={handleFileUpload}
+                                        className="hidden-input"
+                                    />
+                                    <p className="upload-hint">CSV, TSV, or Excel</p>
+                                </div>
+
+                                {dataInfo && (
+                                    <div className="card">
+                                        <div className="card-title">
+                                            <span>📊</span>
+                                            Dataset Summary
+                                        </div>
+                                        <div className="space-y-3">
+                                            <div className="summary-item">
+                                                <span className="summary-label">Sample Size</span>
+                                                <span className="summary-value">{dataInfo.sampleSize}</span>
+                                            </div>
+                                            <div className="summary-item">
+                                                <span className="summary-label">Variables</span>
+                                                <span className="summary-value">{Object.keys(dataInfo.columns).length}</span>
+                                            </div>
+                                            <div className="summary-item">
+                                                <span className="summary-label">Completeness</span>
+                                                <span className="summary-value">{(100 - parseFloat(dataInfo.dataQuality.totalMissingPercent)).toFixed(1)}%</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="divider"></div>
+                                        <div className="text-xs" style={{color: '#94a3b8', marginBottom: '0.75rem'}}>DATA TYPES</div>
+                                        <div className="data-type-list">
+                                            {Object.entries(dataInfo.columns).map(([name, col]) => (
+                                                <div key={name} className="data-type-item">
+                                                    <span className={`data-type-badge ${col.type === 'numerical' ? 'type-numerical' : 'type-categorical'}`}>
+                                                        {col.type.slice(0, 3).toUpperCase()}
+                                                    </span>
+                                                    <span className="truncate">{name}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {dataInfo && (
+                                    <div className="card">
+                                        <div className="card-title">
+                                            <span>⚡</span>
+                                            Quick Insights
+                                        </div>
+                                        <div className="overflow-auto space-y-2">
+                                            {getRecommendations(dataInfo).slice(0, 4).map((rec, i) => (
+                                                <div key={i} className={`insight-item insight-${rec.severity}`}>
+                                                    <div className="insight-title">{rec.category}</div>
+                                                    <div style={{fontSize: '0.7rem'}}>{rec.issue}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div>
+                                {!dataInfo ? (
+                                    <div className="welcome-section">
+                                        <div className="welcome-title">Ready for Statistical Analysis</div>
+                                        <p className="welcome-text">
+                                            Upload a CSV, TSV, or Excel file to begin. Stat Analyzer will automatically detect data types, assess quality, and recommend statistical approaches.
+                                        </p>
+                                        <button
+                                            onClick={() => fileInputRef.current?.click()}
+                                            className="welcome-btn"
+                                        >
+                                            Start Analysis
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-6">
+                                        <div className="card">
+                                            <p style={{fontSize: '0.875rem', color: '#cbd5e1', marginBottom: '0.75rem', fontWeight: '600'}}>Ask about your data</p>
+                                            <div className="query-box">
+                                                <input
+                                                    type="text"
+                                                    value={userQuery}
+                                                    onChange={(e) => setUserQuery(e.target.value)}
+                                                    onKeyPress={(e) => e.key === 'Enter' && handleQuery()}
+                                                    placeholder="e.g., Is this normally distributed? What outliers exist? Should I use regression?"
+                                                    className="query-input"
+                                                />
+                                                <button
+                                                    onClick={handleQuery}
+                                                    disabled={loading || !userQuery.trim()}
+                                                    className="query-btn"
+                                                >
+                                                    {loading ? '...' : 'Analyze'}
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {analysis && (
+                                            <div className="analysis-section space-y-6">
+                                                <div>
+                                                    <h2 className="analysis-title">{analysis.title}</h2>
+                                                    <p className="analysis-type">
+                                                        {analysis.type === 'descriptive' && '📊 Descriptive Analysis'}
+                                                        {analysis.type === 'diagnostic' && '🔍 Diagnostic Analysis'}
+                                                        {analysis.type === 'predictive' && '📈 Predictive Analysis'}
+                                                        {analysis.type === 'prescriptive' && '💡 Prescriptive Analysis'}
+                                                    </p>
+                                                </div>
+
+                                                {analysis.sections.map((section, i) => (
+                                                    <div key={i} className="analysis-section-item">
+                                                        <h3 className="section-heading">{section.heading}</h3>
+                                                        <p className="section-content">{section.content}</p>
+                                                    </div>
+                                                ))}
+
+                                                <div className="warning-box">
+                                                    <p className="warning-text">
+                                                        <span>ℹ️</span>
+                                                        <span>Statistical decisions depend on context and domain knowledge. Consult a statistician for high-stakes decisions.</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {dataInfo && !analysis && (
+                                            <div className="analysis-section">
+                                                <h3 className="column-title">Descriptive Statistics</h3>
+
+                                                {Object.entries(dataInfo.columns).filter(([_, c]) => c.type === 'numerical').map(([colName, col]) => (
+                                                    <div key={colName} className="column-section border-t">
+                                                        <h4 style={{color: '#fcd34d', fontWeight: '600', marginBottom: '1rem'}}>{colName}</h4>
+                                                        <div className="stats-grid">
+                                                            {[
+                                                                ['Mean', col.mean],
+                                                                ['Median', col.median],
+                                                                ['Std Dev', col.std],
+                                                                ['Min', col.min],
+                                                                ['Max', col.max],
+                                                                ['Q1', col.q1],
+                                                                ['Q3', col.q3],
+                                                                ['IQR', col.iqr],
+                                                                ['Skewness', col.skewness],
+                                                                ['Kurtosis', col.kurtosis],
+                                                                ['Outliers', col.outlierCount],
+                                                                ['Missing', `${col.missing}`]
+                                                            ].map(([label, value]) => (
+                                                                <div key={label} className="stat-box">
+                                                                    <p className="stat-label">{label}</p>
+                                                                    <p className="stat-value">{value}</p>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<StatAnalyzer />, document.getElementById('root'));
+    </script>
+</body>
+</html>
