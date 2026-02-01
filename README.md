@@ -1,4 +1,4 @@
-# stat-analyzer
+# Stat-Analyzer
 PhD-level statistical analysis engine for structured and semi-structured data, focused purely on statistics, probability, and decision science.
 
 # Stat Analyzer 📊🧠
@@ -130,3 +130,4 @@ The system automatically:
 ```bash
 pip install -r requirements.txt
 python app/main.py
+
