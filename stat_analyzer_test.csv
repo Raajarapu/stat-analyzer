@@ -1,0 +1,16 @@
+Employee_ID,Age,Gender,Department,Experience_Years,Education_Level,Monthly_Salary,Monthly_Sales,Customer_Satisfaction,Work_Hours_Per_Week,Promotion_Received,Region,Absenteeism_Days
+E001,23,Male,Sales,1,Bachelors,28000,120000,3.8,45,No,South,2
+E002,29,Female,Marketing,5,Masters,42000,150000,4.5,48,Yes,North,0
+E003,35,Male,Sales,10,Masters,65000,210000,4.1,52,Yes,West,1
+E004,41,Female,HR,15,PhD,82000,NaN,4.7,46,Yes,East,0
+E005,26,Male,Sales,3,Bachelors,32000,90000,3.2,44,No,South,4
+E006,31,Female,Finance,7,Masters,54000,175000,4.3,50,Yes,North,1
+E007,38,Male,Finance,12,Bachelors,70000,200000,NaN,55,Yes,West,3
+E008,45,Female,HR,20,PhD,95000,NaN,4.9,40,Yes,East,0
+E009,28,Male,Marketing,4,Bachelors,36000,130000,3.9,47,No,South,2
+E010,33,Female,Sales,8,Masters,58000,185000,4.2,51,Yes,North,1
+E011,50,Male,Finance,25,PhD,120000,300000,4.8,60,Yes,West,0
+E012,22,Female,Sales,0,Bachelors,25000,70000,3.1,42,No,South,5
+E013,37,Male,Marketing,11,Masters,68000,195000,4.0,53,Yes,East,2
+E014,43,Female,Finance,18,PhD,98000,280000,4.6,58,Yes,North,1
+E015,30,Male,Sales,6,Bachelors,45000,160000,3.7,49,No,West,3
